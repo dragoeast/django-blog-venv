@@ -1,6 +1,7 @@
 from django.forms.models import BaseModelForm
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import (
     ListView,
     DetailView,
@@ -24,7 +25,10 @@ class PostListView(ListView):
 class PostDetailView(DetailView):
     model = Post
 
-class PostCreateView(CreateView):
+    # Adding LoginRequiredMixin to the CreateView class
+    # that we inherit from to the first left side 
+    # to enforce logged in to create a new post. 
+class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     fields = [
         'title',

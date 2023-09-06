@@ -1,7 +1,8 @@
+from typing import Optional
 from django.forms.models import BaseModelForm
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import (
     ListView,
     DetailView,
@@ -40,7 +41,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         form.instance.author = self.request.user
         return super().form_valid(form)
 
-class PostUpdateView(LoginRequiredMixin, UpdateView):
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     fields = [
         'title',
@@ -50,6 +51,12 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form: BaseModelForm) -> HttpResponse:
         form.instance.author = self.request.user
         return super().form_valid(form)
+    
+    def test_func(self) -> bool:
+        post = self.get_object()
+        if self.request.user == post.author:
+            return True
+        return False
 
 
 def about(request):

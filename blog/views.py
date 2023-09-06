@@ -1,5 +1,5 @@
-from typing import Optional
 from django.forms.models import BaseModelForm
+from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -8,6 +8,7 @@ from django.views.generic import (
     DetailView,
     CreateView,
     UpdateView,
+    DeleteView,
 )
 from .models import Post
 
@@ -52,6 +53,16 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         form.instance.author = self.request.user
         return super().form_valid(form)
     
+    def test_func(self) -> bool:
+        post = self.get_object()
+        if self.request.user == post.author:
+            return True
+        return False
+
+class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Post
+    success_url = reverse_lazy('blog-home')
+
     def test_func(self) -> bool:
         post = self.get_object()
         if self.request.user == post.author:
